@@ -1,5 +1,6 @@
 const Trip = require("../models/trip");
 const User = require("../models/user");
+const TravelBooking = require("../models/travelBooking");
 
 const tripController = {
   addTrip: async (req, res) => {
@@ -129,20 +130,51 @@ const tripController = {
         return res.status(400).json({ message: "Trip not found" });
       }
 
-
       const message =
-        (trip.budget.currency !== budget.currency ||
-        trip.budget.amount !== budget.amount)
+        trip.budget.currency !== budget.currency ||
+        trip.budget.amount !== budget.amount
           ? "Budget updated successfully"
           : "Budget added successfully";
 
-       await Trip.findOneAndUpdate(
+      await Trip.findOneAndUpdate(
         { userId, _id: tripId },
         { budget },
         { new: true, runValidators: true }
       );
 
       res.status(200).json({ message });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  bookTravel: async (req, res) => {
+    try {
+      const userId = req.userId;
+
+      const tripId = req.params.tripId;
+
+      const trip = await Trip.findOne({ userId, _id: tripId });
+
+      if (!trip) {
+        return res.status(400).json({ message: "Trip not found" });
+      }
+
+      req.body["tripId"] = tripId;
+      req.body["userId"] = userId;
+
+      const travelBooking = new TravelBooking({ ...req.body });
+      await travelBooking.save();
+
+      await Trip.findOneAndUpdate(
+        { userId, _id: tripId },
+        { $push: { travelBookings: travelBooking._id } },
+        { new: true, runValidators: true }
+      );
+
+      res
+        .status(200)
+        .json({ message: "Travel booking done successfully", travelBooking });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
