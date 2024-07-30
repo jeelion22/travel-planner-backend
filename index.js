@@ -5,10 +5,8 @@ const app = require("./app");
 
 console.log("Conecting to MongoDB...");
 
-
-
 mongoose
-  .connect( config.MONGODB_URI)
+  .connect(config.MONGODB_URI)
   .then(() => {
     const PORT = config.MONGODB_PORT || 5500;
 
