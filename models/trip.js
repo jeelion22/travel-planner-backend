@@ -42,10 +42,25 @@ const tripSchema = new mongoose.Schema({
   },
 
   budget: {
-    currency: { type: String, required: [true, "Currency type required"], default: "INR" },
+    currency: {
+      type: String,
+      required: [true, "Currency type required"],
+      default: "INR",
+    },
     amount: { type: Number, required: [true, "Amount required"], default: 0 },
   },
-  default: {},
+  accommodations: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Accommodation",
+    },
+  ],
+  travelBookings: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TravelBooking",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Trip", tripSchema, "trips");
