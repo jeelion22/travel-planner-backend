@@ -1,20 +1,36 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const accommodationSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, "Accommodation name required"],
+    required: [true, "Accommodation booking name required"],
+  },
+
+  accommodationProvider: {
+    name: {
+      type: String,
+      required: [true, "Accommodation provider or hotel name required"],
+    },
+    address: {
+      type: String,
+      required: [true, "Accommodation provider or hotel address required"],
+    },
   },
 
   address: {
     type: String,
     required: [true, "Address required"],
   },
-  CheckInDate: {
+  checkInDate: {
     type: Date,
     required: [true, "Check-in date required"],
     validate: {
-      validator: (v) => v >= new Date(),
+      validator: (v) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return v >= today;
+      },
       message: "Check-in date must be today or later",
     },
   },
@@ -22,7 +38,11 @@ const accommodationSchema = new mongoose.Schema({
     type: Date,
     required: [true, "Check-out date required"],
     validate: {
-      validator: (v) => v >= new Date(),
+      validator: (v) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return v >= today;
+      },
       message: "Check-out date must be today or later",
     },
   },

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const tripSchema = new mongoose.Schema({
   tripName: {
     type: String,
-    // unique: true,
+    unique: true,
     required: [true, "Trip name required"],
   },
   destination: {

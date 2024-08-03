@@ -1,6 +1,7 @@
 const Trip = require("../models/trip");
 const User = require("../models/user");
 const TravelBooking = require("../models/travelBooking");
+const Accommodation = require("../models/accommodation");
 
 const tripController = {
   addTrip: async (req, res) => {
@@ -29,6 +30,11 @@ const tripController = {
 
       await newTrip.save();
 
+      await User.findOneAndUpdate(
+        { _id: userId, isAccountActive: true },
+        { $push: { trips: newTrip._id } }
+      );
+
       res.status(201).json({ message: "New trip added successfully!" });
     } catch (err) {
       if (err.name === "ValidationError") {
@@ -51,14 +57,29 @@ const tripController = {
       res.status(500).json({ message: err });
     }
   },
+  getTripById: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const tripId = req.params.tripId;
 
+      const trip = await Trip.findOne({ _id: tripId, userId });
+
+      if (!trip) {
+        return res.status(400).json({ message: "Trip not found" });
+      }
+
+      res.status(200).json(trip);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
   getAllTripsByUserId: async (req, res) => {
     try {
       const userId = req.userId;
 
       const allTrips = await Trip.find({ userId });
 
-      if (!allTrips) {
+      if (allTrips.length === 0) {
         return res.status(400).json({ message: "No trips found" });
       }
 
@@ -112,6 +133,10 @@ const tripController = {
       if (!trip) {
         return res.status(400).json({ message: "Trip not found" });
       }
+
+      const user = await User.findById(userId);
+      user.trips.pull(tripId);
+      await user.save();
 
       res.status(204).send();
     } catch (err) {
@@ -175,6 +200,209 @@ const tripController = {
       res
         .status(200)
         .json({ message: "Travel booking done successfully", travelBooking });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  bookAccommodation: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const tripId = req.params.tripId;
+
+      const trip = await Trip.findOne({ userId, _id: tripId });
+
+      if (!trip) {
+        return res.status(400).json({ message: "Trip not found" });
+      }
+
+      req.body["tripId"] = tripId;
+      req.body["userId"] = userId;
+
+      const accommodation = new Accommodation({
+        ...req.body,
+      });
+
+      await accommodation.save();
+
+      await Trip.findOneAndUpdate(
+        { userId, _id: tripId },
+        { $push: { accommodations: accommodation._id } },
+        { new: true, runValidators: true }
+      );
+
+      res.status(200).json({
+        message: "Booking accommodaion done successfully",
+        accommodation,
+      });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+  getAccommodationById: async (req, res) => {
+    try {
+      const userId = req.userId;
+
+      const accId = req.params.accId;
+
+      const accommodation = await Accommodation.findOne({
+        userId,
+
+        _id: accId,
+      });
+
+      if (!accommodation) {
+        return res.status(400).json({ message: "Accommodation not found" });
+      }
+
+      res.status(400).json(accommodation);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+  editAccommmodationById: async (req, res) => {
+    try {
+      const userId = req.userId;
+
+      const accId = req.params.accId;
+
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ message: "Request body is empty" });
+      }
+
+      const updatedAccommodation = await Accommodation.findOneAndUpdate(
+        {
+          userId,
+          _id: accId,
+        },
+        { ...req.body },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedAccommodation) {
+        return res.status(400).json({ message: "Accommodation not found" });
+      }
+
+      res.status(200).json({
+        message: "Accommodation information updated successfully",
+        updatedAccommodation,
+      });
+    } catch (err) {}
+  },
+  deleteAccommodationById: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const accId = req.params.accId;
+
+      const deletedAccommodation = await Accommodation.findOneAndDelete({
+        userId,
+        _id: accId,
+      });
+
+      if (!deletedAccommodation) {
+        return res.status(400).json({ message: "Accommodation not found" });
+      }
+
+      const tripId = deletedAccommodation.tripId;
+
+      const trip = await Trip.findOne({ userId, _id: tripId });
+
+      if (!trip) {
+        return res.status(400).json({ message: "Trip not found" });
+      }
+
+      trip.accommodations.pull(accId);
+
+      await trip.save();
+
+      res.status(200).send();
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  getTravelBookingById: async (req, res) => {
+    try {
+      const userId = req.userId;
+
+      const travelId = req.params.travelId;
+
+      const travelBooking = await TravelBooking.findOne({
+        userId,
+
+        _id: travelId,
+      });
+
+      if (!travelBooking) {
+        return res
+          .status(400)
+          .json({ message: "Travel booking information not found" });
+      }
+
+      res.status(400).json(travelBooking);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+  editTravelBookingById: async (req, res) => {
+    try {
+      const userId = req.userId;
+
+      const travelId = req.params.travelId;
+
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ message: "Request body is empty" });
+      }
+
+      const updatedTravelBooking = await TravelBooking.findOneAndUpdate(
+        {
+          userId,
+          _id: travelId,
+        },
+        { ...req.body },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedTravelBooking) {
+        return res
+          .status(400)
+          .json({ message: "Travel booking information not found" });
+      }
+
+      res.status(200).json({
+        message: "Travel booking information updated successfully",
+        updatedTravelBooking,
+      });
+    } catch (err) {}
+  },
+
+  deleteTravelBookingById: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const travelId = req.params.travelId;
+
+      const deletedTravelBooking = await TravelBooking.findOneAndDelete({
+        userId,
+        _id: travelId,
+      });
+
+      if (!deletedTravelBooking) {
+        return res.status(400).json({ message: "Travel booking not found" });
+      }
+
+      const tripId = deletedTravelBooking.tripId
+
+      const trip = await Trip.findOne({ userId,  _id:tripId });
+
+      if (!trip) {
+        return res.status(400).json({ message: "Trip not found" });
+      }
+
+      trip.travelBookings.pull(travelId);
+
+      await trip.save();
+
+      res.status(200).send();
     } catch (err) {
       res.status(500).json({ message: err.message });
     }

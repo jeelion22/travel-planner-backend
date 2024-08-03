@@ -4,7 +4,6 @@ const otpGenerator = require("otp-generator");
 const sendOtpToEmail = require("../utils/email");
 const crypto = require("crypto");
 
-
 const userSchema = new mongoose.Schema({
   firstname: {
     type: String,
@@ -63,9 +62,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  trips: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Trip",
+    },
+  ],
   hashedPasswordResetOtp: String,
   hashedPasswordResetOtpExpiresAt: Date,
-
 });
 
 userSchema.pre("save", async function (next) {
