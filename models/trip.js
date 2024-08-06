@@ -61,6 +61,12 @@ const tripSchema = new mongoose.Schema({
       ref: "TravelBooking",
     },
   ],
+  toDos: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ToDos",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Trip", tripSchema, "trips");

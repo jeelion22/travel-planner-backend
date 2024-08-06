@@ -11,6 +11,8 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const tripRouter = require("./routes/tripRoutes");
 
+const flightRouter = require("./routes/flightRoutes");
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -37,6 +39,8 @@ app.head("/api", (req, res) => {
 });
 
 app.use("/api/users", userRouter, tripRouter);
+
+app.use("/api/admins", flightRouter);
 
 module.exports = app;
 

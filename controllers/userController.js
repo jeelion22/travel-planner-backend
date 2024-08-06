@@ -41,7 +41,6 @@ const userController = {
         });
       }
 
-  
       res.status(500).json({ message: err.message });
     }
   },
@@ -120,6 +119,7 @@ const userController = {
       const token = jwt.sign(
         {
           id: user._id,
+          userType: user.userType,
         },
         JWT_SECRET
       );

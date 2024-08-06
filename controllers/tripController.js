@@ -2,6 +2,8 @@ const Trip = require("../models/trip");
 const User = require("../models/user");
 const TravelBooking = require("../models/travelBooking");
 const Accommodation = require("../models/accommodation");
+const ToDos = require("../models/toDos");
+const axios = require("axios");
 
 const tripController = {
   addTrip: async (req, res) => {
@@ -390,9 +392,9 @@ const tripController = {
         return res.status(400).json({ message: "Travel booking not found" });
       }
 
-      const tripId = deletedTravelBooking.tripId
+      const tripId = deletedTravelBooking.tripId;
 
-      const trip = await Trip.findOne({ userId,  _id:tripId });
+      const trip = await Trip.findOne({ userId, _id: tripId });
 
       if (!trip) {
         return res.status(400).json({ message: "Trip not found" });
@@ -405,6 +407,155 @@ const tripController = {
       res.status(200).send();
     } catch (err) {
       res.status(500).json({ message: err.message });
+    }
+  },
+
+  addToDos: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const tripId = req.params.tripId;
+
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Request body might empty or not included" });
+      }
+
+      (req.body["userId"] = userId), (req.body["tripId"] = tripId);
+
+      const toDos = new ToDos({ ...req.body });
+
+      await toDos.save();
+
+      const trip = await Trip.findOne({ userId, _id: tripId });
+
+      if (!trip) {
+        return res.status(400).json({ message: "Trip not found" });
+      }
+
+      trip.toDos.push(toDos._id);
+
+      await trip.save();
+
+      res.status(201).json({ message: "ToDo created successfully" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  updateToDoStatus: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const toDoId = req.params.toDoId;
+      const toDoStatus = req.body.toDoStatus;
+
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Request body might empty or not included" });
+      }
+
+      const updatedToDo = await ToDos.findOneAndUpdate(
+        { userId, _id: toDoId },
+        { toDoStatus },
+        { runValidators: true }
+      );
+
+      if (!updatedToDo) {
+        return res.status(400).json({ message: "ToDo not found" });
+      }
+
+      res.status(200).json({ message: "ToDo status updated successfully" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  editToDo: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const toDoId = req.params.toDoId;
+
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Request body might empty or not included" });
+      }
+
+      const updatedToDo = await ToDos.findOneAndUpdate(
+        { userId, _id: toDoId },
+        { ...req.body },
+        { runValidators: true }
+      );
+
+      if (!updatedToDo) {
+        return res.status(400).json({ message: "ToDo not found" });
+      }
+
+      res.status(200).json({ message: "ToDo  updated successfully" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  deleteToDo: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const toDoId = req.params.toDoId;
+
+      const deletedToDo = await ToDos.findOneAndDelete({ userId, _id: toDoId });
+
+      if (!deletedToDo) {
+        return res.status(400).json({ message: "ToDo not found" });
+      }
+
+      const tripId = deletedToDo.tripId;
+
+      const trip = await Trip.findOne({ _id: tripId, userId });
+
+      if (!trip) {
+        return res.status(400).json({ message: "Trip not found" });
+      }
+
+      trip.toDos.pull(toDoId);
+
+      await trip.save();
+
+      res.status(200).send();
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  getToDo: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const toDoId = req.params.toDoId;
+
+      const toDo = await ToDos.findOne({ userId, _id: toDoId });
+
+      if (!toDo) {
+        return res.status(400).json({ message: "ToDo not found" });
+      }
+
+      res.status(200).json(toDo);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  getTrainsBtnStations: async (req, res) => {
+    try {
+      const from = req.params.from;
+      const to = req.params.to;
+
+      const response = await axios.get(
+        `http://indianrailapi.com/api/v2/TrainBetweenStation/apikey/9abdae9ebdd7b42aaa48c30815a4dbcb/From/${from}/To/${to}`
+      );
+
+      res.status(200).json(response.data);
+    } catch (err) {
+      res.status(500).json(err.message);
     }
   },
 };

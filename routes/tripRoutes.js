@@ -37,12 +37,53 @@ tripRouter.put(
   auth.isAuth,
   tripController.editAccommmodationById
 );
-tripRouter.delete("/accommodations/:accId", auth.isAuth, tripController.deleteAccommodationById)
+tripRouter.delete(
+  "/accommodations/:accId",
+  auth.isAuth,
+  tripController.deleteAccommodationById
+);
 
-tripRouter.get("/travels/:travelId", auth.isAuth, tripController.getTravelBookingById)
-tripRouter.put("/travels/edit/:travelId", auth.isAuth, tripController.editTravelBookingById)
+tripRouter.get(
+  "/travels/:travelId",
+  auth.isAuth,
+  tripController.getTravelBookingById
+);
+tripRouter.put(
+  "/travels/edit/:travelId",
+  auth.isAuth,
+  tripController.editTravelBookingById
+);
 
-tripRouter.delete("/travels/:travelId", auth.isAuth, tripController.deleteTravelBookingById)
+tripRouter.delete(
+  "/travels/:travelId",
+  auth.isAuth,
+  tripController.deleteTravelBookingById
+);
 
+tripRouter.post("/trips/toDos/:tripId", auth.isAuth, tripController.addToDos);
+
+tripRouter.put(
+  "/trips/toDos/update/status/:toDoId",
+  auth.isAuth,
+  tripController.updateToDoStatus
+);
+tripRouter.put(
+  "/trips/toDos/edit/:toDoId",
+  auth.isAuth,
+  tripController.editToDo
+);
+tripRouter.delete(
+  "/trips/toDos/:toDoId",
+  auth.isAuth,
+  tripController.deleteToDo
+);
+
+tripRouter.get("/trips/toDos/:toDoId", auth.isAuth, tripController.getToDo);
+
+tripRouter.get(
+  "/trips/trains/from/:from/to/:to",
+  auth.isAuth,
+  tripController.getTrainsBtnStations
+);
 
 module.exports = tripRouter;

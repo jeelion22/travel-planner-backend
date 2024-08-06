@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema({
       message: (props) => `${props.value} is not a valid phone number`,
     },
   },
+  userType: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
   isEmailVerified: {
     type: Boolean,
     default: false,
