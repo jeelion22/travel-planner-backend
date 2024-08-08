@@ -5,6 +5,7 @@ const Accommodation = require("../models/accommodation");
 const ToDos = require("../models/toDos");
 const axios = require("axios");
 const Flight = require("../models/flights");
+const Train = require("../models/trains");
 const {
   FlightBooking,
   TrainBooking,
@@ -188,14 +189,9 @@ const tripController = {
       const userId = req.userId;
       const source = String(req.query.source || "").trim();
       const destination = String(req.query.destination || "").trim();
-      // let date = String(req.query.date || "").trim();
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-
-      // if (date < today) {
-      //   date = today
-      // }
 
       const user = await User.findById(userId);
 
@@ -231,7 +227,53 @@ const tripController = {
 
       res.status(200).json(flightsAvailable);
     } catch (err) {
-      console.log(err);
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  suggestTrains: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const source = String(req.query.source || "").trim();
+      const destination = String(req.query.destination || "").trim();
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(400).json({ message: "User not found" });
+      }
+
+      let trainsAvailable = await Train.find({
+        source: { $regex: source, $options: "i" },
+
+        destination: { $regex: destination, $options: "i" },
+
+        departureTime: { $gte: today },
+      });
+
+      if (trainsAvailable.length === 0) {
+        trainsAvailable = await Train.find({
+          $or: [
+            {
+              source: { $regex: source, $options: "i" },
+            },
+            {
+              destination: { $regex: destination, $options: "i" },
+            },
+          ],
+          departureTime: { $gte: today },
+        });
+      }
+
+      if (trainsAvailable.length === 0) {
+        return res.status(400).json({ message: "No trains available" });
+      }
+
+      res.status(200).json(trainsAvailable);
+    } catch (err) {
       res.status(500).json({ message: err.message });
     }
   },

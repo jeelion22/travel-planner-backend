@@ -18,14 +18,18 @@ const FlightBooking = TravelBooking.discriminator(
 );
 
 const trainBookingSchema = new mongoose.Schema({
+  trainName: {
+    type: String,
+    required: [true, "Train name required"],
+  },
   trainNumber: {
     type: String,
     required: [true, "Train number required"],
   },
-  coach: {
-    type: String,
-    required: [true, "Coach information required for train"],
-  },
+  //   coach: {
+  //     type: String,
+  //     required: [true, "Coach information required for train"],
+  //   },
 });
 
 const TrainBooking = TravelBooking.discriminator("train", trainBookingSchema);
