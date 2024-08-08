@@ -21,6 +21,7 @@ const flightSchema = new mongoose.Schema({
       "Air Odisha",
       "Air Deccan",
       "Pawan Hans",
+      
     ],
     required: [true, "Airline name required"],
   },

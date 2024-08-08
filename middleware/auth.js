@@ -14,6 +14,8 @@ const auth = {
       const decodedToken = jwt.verify(token, JWT_SECRET);
       req.userId = decodedToken.id;
 
+    
+
       next();
     } catch (err) {
       if (err.name === "JsonWebTokenError") {

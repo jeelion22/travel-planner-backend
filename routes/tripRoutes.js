@@ -86,4 +86,10 @@ tripRouter.get(
   tripController.getTrainsBtnStations
 );
 
+tripRouter.get(
+  "/trips/flights/search",
+  auth.isAuth,
+  tripController.suggestFlights
+);
+
 module.exports = tripRouter;

@@ -4,6 +4,14 @@ const TravelBooking = require("../models/travelBooking");
 const Accommodation = require("../models/accommodation");
 const ToDos = require("../models/toDos");
 const axios = require("axios");
+const Flight = require("../models/flights");
+const {
+  FlightBooking,
+  TrainBooking,
+  BusBooking,
+  CarRentalBooking,
+  OtherBooking,
+} = require("../models/travelType");
 
 const tripController = {
   addTrip: async (req, res) => {
@@ -175,6 +183,59 @@ const tripController = {
     }
   },
 
+  suggestFlights: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const source = String(req.query.source || "").trim();
+      const destination = String(req.query.destination || "").trim();
+      // let date = String(req.query.date || "").trim();
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // if (date < today) {
+      //   date = today
+      // }
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(400).json({ message: "User not found" });
+      }
+
+      let flightsAvailable = await Flight.find({
+        source: { $regex: source, $options: "i" },
+
+        destination: { $regex: destination, $options: "i" },
+
+        departureTime: { $gte: today },
+      });
+
+      if (flightsAvailable.length === 0) {
+        flightsAvailable = await Flight.find({
+          $or: [
+            {
+              source: { $regex: source, $options: "i" },
+            },
+            {
+              destination: { $regex: destination, $options: "i" },
+            },
+          ],
+          departureTime: { $gte: today },
+        });
+      }
+
+      if (flightsAvailable.length === 0) {
+        return res.status(400).json({ message: "No flights available" });
+      }
+
+      res.status(200).json(flightsAvailable);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: err.message });
+    }
+  },
+
   bookTravel: async (req, res) => {
     try {
       const userId = req.userId;
@@ -190,18 +251,43 @@ const tripController = {
       req.body["tripId"] = tripId;
       req.body["userId"] = userId;
 
-      const travelBooking = new TravelBooking({ ...req.body });
-      await travelBooking.save();
+      const { travelType, ...bookingData } = req.body;
+
+      let TravelBookingModel;
+
+      switch (travelType) {
+        case "flight":
+          TravelBookingModel = FlightBooking;
+          break;
+        case "train":
+          TravelBookingModel = TrainBooking;
+          break;
+        case "bus":
+          TravelBookingModel = BusBooking;
+          break;
+        case "car rental":
+          TravelBookingModel = CarRentalBooking;
+          break;
+        case "other":
+          TravelBookingModel = OtherBooking;
+          break;
+
+        default:
+          return res.status(400).json({ message: "Invalid travel type" });
+      }
+
+      const newBooking = new TravelBookingModel(bookingData);
+      await newBooking.save();
 
       await Trip.findOneAndUpdate(
         { userId, _id: tripId },
-        { $push: { travelBookings: travelBooking._id } },
+        { $push: { travelBookings: newBooking._id } },
         { new: true, runValidators: true }
       );
 
       res
         .status(200)
-        .json({ message: "Travel booking done successfully", travelBooking });
+        .json({ message: "Travel booking done successfully", newBooking });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }

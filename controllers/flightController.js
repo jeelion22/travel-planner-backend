@@ -175,11 +175,14 @@ const generateFlightData = (numEntries) => {
       departureTime.getTime() + randomHrs * 3600 * 1000
     );
 
-    flightNumber = `${
-      flightAbrevations[Math.floor(Math.random() * flightAbrevations.length)]
-    }${Math.floor(Math.random() * 1000)}`;
-
     const airline = airlines[Math.floor(Math.random() * airlines.length)];
+
+    let airlineAbrv = airline
+      .split(" ")
+      .map((letter) => letter[0])
+      .join("");
+
+    flightNumber = `${airlineAbrv}${Math.floor(Math.random() * 1000)}`;
 
     const cost = Math.floor(Math.random() * 10000);
 
