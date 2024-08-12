@@ -12,10 +12,12 @@ const userController = {
     try {
       const { firstname, lastname, email, phone, password } = req.body;
 
-      const user = await User.findOne({ email, phone });
+      const user = await User.findOne({ $or: [{ email }, { phone }] });
 
       if (user) {
-        return res.status(400).json({ message: "User already exists" });
+        return res
+          .status(400)
+          .json({ message: "Email or phone aleady in use" });
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
@@ -30,7 +32,12 @@ const userController = {
 
       await newUser.save();
 
-      res.status(201).json({ message: "User created successfully!" });
+      res
+        .status(201)
+        .json({
+          message:
+            "User created successfully!, please verify your email for OTP",
+        });
     } catch (err) {
       if (err.code === 11000) {
         const field = Object.keys(err.keyPattern)[0];
