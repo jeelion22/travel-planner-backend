@@ -77,38 +77,81 @@ const userSchema = new mongoose.Schema({
   hashedPasswordResetOtpExpiresAt: Date,
 });
 
+userSchema.methods.generateAndSendOtpEmail = async function () {
+  const emailOtp = otpGenerator.generate(8, {
+    upperCaseAlphabets: true,
+    specialChars: true,
+    lowerCaseAlphabets: true,
+  });
+
+  const hashedEmailOtp = crypto
+    .createHash("sha256")
+    .update(emailOtp)
+    .digest("hex");
+
+  this.hashedEmailOtp = hashedEmailOtp;
+  this.hashedEmailOtpExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // expires in 15 minutes
+
+  const option = {
+    email: this.email,
+    subject: "Verify your Email for Travel Planner App Account",
+    message: `<div style=""><p>Hi ${this.firstname} ${this.lastname}, </p>
+    <p>Please verify your account by the otp <strong>${emailOtp}</strong></p>
+    <p>If it was not initiated by you, then no action required. Please ignore this mail.</p>
+
+    <p>
+    With regards <br> Travel Planner Team
+    </p>
+    </div>`,
+  };
+
+  await sendOtpToEmail(option);
+};
+
 userSchema.pre("save", async function (next) {
   if (this.isNew) {
-    const emailOtp = otpGenerator.generate(8, {
-      upperCaseAlphabets: true,
-      specialChars: true,
-      lowerCaseAlphabets: true,
-    });
+    try {
+      const existingUser = await mongoose.models.User.findOne({
+        email: this.email,
+        phone: this.phone,
+      });
 
-    const hashedEmailOtp = crypto
-      .createHash("sha256")
-      .update(emailOtp)
-      .digest("hex");
+      if (existingUser) {
+        if (!existingUser.isEmailVerified) {
+          await existingUser.generateAndSendOtpEmail();
+          const err = new Error(
+            "User already exists and verification email has been resent"
+          );
+          err.status = 200;
+          return next(err);
+        } else {
+          const err = new Error(
+            "User with email and phone is aleady registered and verifued"
+          );
+          err.status = 400;
+          return next(err);
+        }
+      }
 
-    this.hashedEmailOtp = hashedEmailOtp;
-    this.hashedEmailOtpExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // expires in 15 minutes
+      const partialMatch = await mongoose.models.User.findOne({
+        $or: [{ email: this.email }, { phone: this.phone }],
+      });
 
-    const option = {
-      email: this.email,
-      subject: "Verify your Email for Travel Planner App Account",
-      message: `<div style=""><p>Hi ${this.firstname} ${this.lastname}, </p>
-      <p>Please verify your account by the otp <strong>${emailOtp}</strong></p>
-      <p>If it was not initiated by you, then no action required. Please ignore this mail.</p>
+      if (partialMatch) {
+        const err = new Error("Email or phone aleady exists");
+        err.status = 400;
+        return next(err);
+      }
 
-      <p>
-      With regards <br> Travel Planner Team
-      </p>
-      </div>`,
-    };
+      await this.generateAndSendOtpEmail();
 
-    await sendOtpToEmail(option);
+      next();
+    } catch (err) {
+      next(err);
+    }
+  } else {
+    next();
   }
-  next();
 });
 
 module.exports = mongoose.model("User", userSchema, "users");
