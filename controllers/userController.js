@@ -12,14 +12,6 @@ const userController = {
     try {
       const { firstname, lastname, email, phone, password } = req.body;
 
-      const user = await User.findOne({ $or: [{ email }, { phone }] });
-
-      if (user) {
-        return res
-          .status(400)
-          .json({ message: "Email or phone aleady in use" });
-      }
-
       const passwordHash = await bcrypt.hash(password, 10);
 
       const newUser = new User({
@@ -32,22 +24,11 @@ const userController = {
 
       await newUser.save();
 
-      res
-        .status(201)
-        .json({
-          message:
-            "User created successfully!, please verify your email for OTP",
-        });
+      res.status(201).json(newUser);
     } catch (err) {
-      if (err.code === 11000) {
-        const field = Object.keys(err.keyPattern)[0];
-        return res.status(400).json({
-          message: `${
-            field.charAt(0).toUpperCase() + field.slice(1)
-          } already exists`,
-        });
+      if (err.status === 200) {
+        return res.status(200).json({ message: err.message });
       }
-
       res.status(500).json({ message: err.message });
     }
   },
