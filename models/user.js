@@ -78,24 +78,27 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.generateAndSendOtpEmail = async function () {
-  const emailOtp = otpGenerator.generate(8, {
-    upperCaseAlphabets: true,
-    specialChars: true,
-    lowerCaseAlphabets: true,
-  });
+  try {
+    const emailOtp = otpGenerator.generate(6, {
+      upperCaseAlphabets: true,
+      specialChars: true,
+      lowerCaseAlphabets: true,
+    });
 
-  const hashedEmailOtp = crypto
-    .createHash("sha256")
-    .update(emailOtp)
-    .digest("hex");
+    const hashedEmailOtp = crypto
+      .createHash("sha256")
+      .update(emailOtp)
+      .digest("hex");
 
-  this.hashedEmailOtp = hashedEmailOtp;
-  this.hashedEmailOtpExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // expires in 15 minutes
+    this.hashedEmailOtp = hashedEmailOtp;
+    this.hashedEmailOtpExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // expires in 15 minutes
 
-  const option = {
-    email: this.email,
-    subject: "Verify your Email for Travel Planner App Account",
-    message: `<div style=""><p>Hi ${this.firstname} ${this.lastname}, </p>
+    await this.save();
+
+    const option = {
+      email: this.email,
+      subject: "Verify your Email for Travel Planner App Account",
+      message: `<div style=""><p>Hi ${this.firstname} ${this.lastname}, </p>
     <p>Please verify your account by the otp <strong>${emailOtp}</strong></p>
     <p>If it was not initiated by you, then no action required. Please ignore this mail.</p>
 
@@ -103,9 +106,14 @@ userSchema.methods.generateAndSendOtpEmail = async function () {
     With regards <br> Travel Planner Team
     </p>
     </div>`,
-  };
+    };
 
-  await sendOtpToEmail(option);
+    await sendOtpToEmail(option);
+  } catch (err) {
+    console.error("Error in generateAndSendOtpEmail:", err);
+
+    throw new Error("Failed to send OTP email");
+  }
 };
 
 userSchema.pre("save", async function (next) {
@@ -118,16 +126,7 @@ userSchema.pre("save", async function (next) {
 
       if (existingUser) {
         if (!existingUser.isEmailVerified) {
-          await existingUser.generateAndSendOtpEmail();
-          const err = new Error(
-            "User already exists and verification email has been resent"
-          );
-          err.status = 200;
-          return next(err);
-        } else {
-          const err = new Error(
-            "User with email and phone is aleady registered and verifued"
-          );
+          const err = new Error("User already exists");
           err.status = 400;
           return next(err);
         }
@@ -142,8 +141,6 @@ userSchema.pre("save", async function (next) {
         err.status = 400;
         return next(err);
       }
-
-      await this.generateAndSendOtpEmail();
 
       next();
     } catch (err) {

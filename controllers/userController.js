@@ -12,7 +12,7 @@ const userController = {
     try {
       const { firstname, lastname, email, phone, password } = req.body;
 
-      const passwordHash = await bcrypt.hash(password, 10);
+      let passwordHash = await bcrypt.hash(password, 10);
 
       const newUser = new User({
         firstname,
@@ -24,10 +24,12 @@ const userController = {
 
       await newUser.save();
 
-      res.status(201).json(newUser);
+      res.status(201).json({
+        message: "User created successfully!",
+      });
     } catch (err) {
-      if (err.status === 200) {
-        return res.status(200).json({ message: err.message });
+      if (err.status === 400) {
+        return res.status(400).json({ message: err.message });
       }
       res.status(500).json({ message: err.message });
     }
@@ -79,7 +81,7 @@ const userController = {
     try {
       const { email, password } = req.body;
 
-      const user = await User.findOne({ email, isAccountActive: true });
+      const user = await User.findOne({ email });
 
       if (!user) {
         return res.status(400).json({ message: "Invalid credentials" });
@@ -94,14 +96,11 @@ const userController = {
         return res.status(400).json({ message: "Invalid credentials" });
       }
 
-      // if (!user.isEmailVerified && !user.isPhoneVerified) {
-      //   return res
-      //     .status(400)
-      //     .json({ message: "Your email and phone are not verfified." });
-      // }
-
       if (!user.isEmailVerified) {
-        return res.status(400).json({ message: "Please verify your email." });
+        await user.generateAndSendOtpEmail();
+        return res
+          .status(200)
+          .json({ message: "Email verification required", user: { _id } });
       }
 
       const token = jwt.sign(
@@ -109,7 +108,8 @@ const userController = {
           id: user._id,
           userType: user.userType,
         },
-        JWT_SECRET
+        JWT_SECRET,
+        { expiresIn: "24h" }
       );
 
       res.cookie("token", token, {

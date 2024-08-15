@@ -7,7 +7,7 @@ const userRouter = express.Router();
 
 userRouter.post("/register", userController.register);
 userRouter.post("/verify/:userId", userController.verifyAccount);
-userRouter.get("/login", userController.login);
+userRouter.post("/login", userController.login);
 userRouter.get("/me", auth.isAuth, userController.me);
 userRouter.get("/logout", auth.isAuth, userController.logout);
 userRouter.post("/forgot-password", userController.forgotPassword);
