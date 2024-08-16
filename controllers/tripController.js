@@ -19,7 +19,7 @@ const tripController = {
     try {
       const userId = req.userId;
 
-      const { tripName, destination, startDate, endDate } = req.body;
+      const { tripName, destination, startDate, endDate, budget } = req.body;
 
       if (!tripName || !destination || !startDate || !endDate) {
         return res.status(400).json({ message: "All fields are required" });
@@ -37,6 +37,10 @@ const tripController = {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         userId,
+        budget: {
+          currency: budget.currency,
+          amount: budget.amount,
+        },
       });
 
       await newTrip.save();
@@ -46,7 +50,7 @@ const tripController = {
         { $push: { trips: newTrip._id } }
       );
 
-      res.status(201).json({ message: "New trip added successfully!" });
+      res.status(201).json({ message: "Trip added successfully!" });
     } catch (err) {
       if (err.name === "ValidationError") {
         const field = Object.keys(err.errors)[0];
@@ -59,9 +63,11 @@ const tripController = {
       if (err.code === 11000) {
         const field = Object.keys(err.keyPattern)[0];
         return res.status(400).json({
-          message: `${
-            field.charAt(0).toUpperCase() + field.slice(1)
-          } already exists`,
+          message: "Trip already exists with the same name",
+
+          // `${
+          //   field.charAt(0).toUpperCase() + field.slice(1)
+          // } already exists`,
         });
       }
 
