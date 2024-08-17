@@ -39,10 +39,7 @@ const tripController = {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         userId,
-        budget: {
-          currency: budget.currency,
-          amount: budget.amount,
-        },
+        budget,
       });
 
       await newTrip.save();
