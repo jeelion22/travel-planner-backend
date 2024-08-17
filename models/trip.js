@@ -1,5 +1,50 @@
 const mongoose = require("mongoose");
 
+const budgetSchema = new mongoose.Schema({
+  currency: {
+    type: String,
+    required: [true, "Currency type required"],
+    default: "INR",
+  },
+  transportationBudget: {
+    type: Number,
+    required: [true, "Transporation budget required"],
+  },
+  accommodationBudget: {
+    type: Number,
+    required: [true, "Accommodation budget required"],
+  },
+  foodBudget: {
+    type: Number,
+    required: [true, "Food budget required"],
+  },
+  otherBudget: {
+    type: Number,
+    required: [true, "Other budget required"],
+  },
+
+  transportation: {
+    type: Number,
+    required: [true, "Transporation spent amount required"],
+    default: 0,
+  },
+  accommodation: {
+    type: Number,
+    required: [true, "Accommodation spent amount required"],
+    default: 0,
+  },
+  food: {
+    type: Number,
+    required: [true, "Food spent amount required"],
+    default: 0,
+  },
+  other: {
+    type: Number,
+    required: [true, "Other spent amount required"],
+    default: 0,
+  },
+});
+
 const tripSchema = new mongoose.Schema({
   tripName: {
     type: String,
@@ -26,8 +71,10 @@ const tripSchema = new mongoose.Schema({
     type: Date,
     required: [true, "Trip end date required"],
     validate: {
-      validator: (v) => v >= new Date(),
-      message: "Trip end date must be today or later",
+      validator: function (v) {
+        v >= this.startDate;
+      },
+      message: "Trip end date must be start date or later",
     },
   },
   createdAt: {
@@ -41,14 +88,7 @@ const tripSchema = new mongoose.Schema({
     required: true,
   },
 
-  budget: {
-    currency: {
-      type: String,
-      required: [true, "Currency type required"],
-      default: "INR",
-    },
-    amount: { type: Number, required: [true, "Amount required"], default: 0 },
-  },
+  budget: budgetSchema,
   accommodations: [
     {
       type: mongoose.Schema.Types.ObjectId,
