@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
 const Trip = require("../models/trip");
 const User = require("../models/user");
 const TravelBooking = require("../models/travelBooking");
@@ -78,6 +80,10 @@ const tripController = {
     try {
       const userId = req.userId;
       const tripId = req.params.tripId;
+
+      if (!ObjectId.isValid(tripId)) {
+        return res.status(400).json({ message: "Invalid Trip ID" });
+      }
 
       const trip = await Trip.findOne({ _id: tripId, userId });
 
