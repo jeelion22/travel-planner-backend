@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Types;
 const Trip = require("../models/trip");
 const User = require("../models/user");
@@ -192,6 +192,8 @@ const tripController = {
       res.status(500).json({ message: err.message });
     }
   },
+
+
 
   suggestFlights: async (req, res) => {
     try {
