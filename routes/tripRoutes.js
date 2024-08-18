@@ -60,7 +60,11 @@ tripRouter.delete(
   tripController.deleteTravelBookingById
 );
 
+// todos' routes
 tripRouter.post("/trips/toDos/:tripId", auth.isAuth, tripController.addToDos);
+
+// get all todos
+tripRouter.get("/trips/toDos/:tripId", auth.isAuth, tripController.getAllToDos);
 
 tripRouter.put(
   "/trips/toDos/update/status/:toDoId",
