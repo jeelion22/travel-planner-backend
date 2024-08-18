@@ -163,11 +163,10 @@ const tripController = {
       res.status(500).json({ message: err.message });
     }
   },
-  addBudget: async (req, res) => {
+  updateBudget: async (req, res) => {
     try {
       const userId = req.userId;
       const tripId = req.params.tripId;
-      const { budget } = req.body;
 
       const trip = await Trip.findOne({ userId, _id: tripId });
 
@@ -175,25 +174,17 @@ const tripController = {
         return res.status(400).json({ message: "Trip not found" });
       }
 
-      const message =
-        trip.budget.currency !== budget.currency ||
-        trip.budget.amount !== budget.amount
-          ? "Budget updated successfully"
-          : "Budget added successfully";
-
       await Trip.findOneAndUpdate(
         { userId, _id: tripId },
-        { budget },
+        { budget: { ...req.body } },
         { new: true, runValidators: true }
       );
 
-      res.status(200).json({ message });
+      res.status(200).json({ message: "Budget updated successfully!" });
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
   },
-
-
 
   suggestFlights: async (req, res) => {
     try {
