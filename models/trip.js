@@ -1,49 +1,52 @@
 const mongoose = require("mongoose");
 
-const budgetSchema = new mongoose.Schema({
-  currency: {
-    type: String,
-    required: [true, "Currency type required"],
-    default: "INR",
-  },
-  transportationBudget: {
-    type: Number,
-    required: [true, "Transporation budget required"],
-  },
-  accommodationBudget: {
-    type: Number,
-    required: [true, "Accommodation budget required"],
-  },
-  foodBudget: {
-    type: Number,
-    required: [true, "Food budget required"],
-  },
-  otherBudget: {
-    type: Number,
-    required: [true, "Other budget required"],
-  },
+const budgetSchema = new mongoose.Schema(
+  {
+    currency: {
+      type: String,
+      required: [true, "Currency type required"],
+      default: "INR",
+    },
+    transportationBudget: {
+      type: Number,
+      required: [true, "Transporation budget required"],
+    },
+    accommodationBudget: {
+      type: Number,
+      required: [true, "Accommodation budget required"],
+    },
+    foodBudget: {
+      type: Number,
+      required: [true, "Food budget required"],
+    },
+    otherBudget: {
+      type: Number,
+      required: [true, "Other budget required"],
+    },
 
-  transportation: {
-    type: Number,
-    required: [true, "Transporation spent amount required"],
-    default: 0,
+    transportation: {
+      type: Number,
+      required: [true, "Transporation spent amount required"],
+      default: 0,
+    },
+    accommodation: {
+      type: Number,
+      required: [true, "Accommodation spent amount required"],
+      default: 0,
+    },
+    food: {
+      type: Number,
+      required: [true, "Food spent amount required"],
+      default: 0,
+    },
+    other: {
+      type: Number,
+      required: [true, "Other spent amount required"],
+      default: 0,
+    },
   },
-  accommodation: {
-    type: Number,
-    required: [true, "Accommodation spent amount required"],
-    default: 0,
-  },
-  food: {
-    type: Number,
-    required: [true, "Food spent amount required"],
-    default: 0,
-  },
-  other: {
-    type: Number,
-    required: [true, "Other spent amount required"],
-    default: 0,
-  },
-});
+  { _id: false }
+);
 
 const tripSchema = new mongoose.Schema({
   tripName: {
