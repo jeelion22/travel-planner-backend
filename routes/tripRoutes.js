@@ -12,9 +12,9 @@ tripRouter.get("/allTrips", auth.isAuth, tripController.getAllTripsByUserId);
 tripRouter.put("/trips/edit/:tripId", auth.isAuth, tripController.editTrip);
 tripRouter.delete("/trips/:tripId", auth.isAuth, tripController.deleteTrip);
 tripRouter.put(
-  "/trips/addBudget/:tripId",
+  "/trips/updateBudget/:tripId",
   auth.isAuth,
-  tripController.addBudget
+  tripController.updateBudget
 );
 tripRouter.put(
   "/trips/travels/booking/:tripId",
