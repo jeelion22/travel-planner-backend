@@ -16,11 +16,15 @@ tripRouter.put(
   auth.isAuth,
   tripController.updateBudget
 );
+
+// transportation booking
 tripRouter.put(
   "/trips/travels/booking/:tripId",
   auth.isAuth,
   tripController.bookTravel
 );
+
+// accommodation booking
 tripRouter.put(
   "/trips/accommodations/booking/:tripId",
   auth.isAuth,
@@ -48,14 +52,22 @@ tripRouter.get(
   auth.isAuth,
   tripController.getTravelBookingById
 );
+
+tripRouter.get(
+  "/travels/booking/all/:tripId",
+  auth.isAuth,
+  tripController.getAllTravelBooking
+);
+
 tripRouter.put(
   "/travels/edit/:travelId",
   auth.isAuth,
   tripController.editTravelBookingById
 );
 
+// deleting booked travel ticket
 tripRouter.delete(
-  "/travels/:travelId",
+  "/travels/booking/:travelId",
   auth.isAuth,
   tripController.deleteTravelBookingById
 );
@@ -64,24 +76,33 @@ tripRouter.delete(
 tripRouter.post("/trips/toDos/:tripId", auth.isAuth, tripController.addToDos);
 
 // get all todos
-tripRouter.get("/trips/toDos/:tripId", auth.isAuth, tripController.getAllToDos);
+tripRouter.get(
+  "/trips/toDos/all/:tripId",
+  auth.isAuth,
+  tripController.getAllToDos
+);
 
+// updte todo status
 tripRouter.put(
   "/trips/toDos/update/status/:toDoId",
   auth.isAuth,
   tripController.updateToDoStatus
 );
+
+// toDo edit
 tripRouter.put(
   "/trips/toDos/edit/:toDoId",
   auth.isAuth,
   tripController.editToDo
 );
+// delete todo
 tripRouter.delete(
   "/trips/toDos/:toDoId",
   auth.isAuth,
   tripController.deleteToDo
 );
 
+// get toDo
 tripRouter.get("/trips/toDos/:toDoId", auth.isAuth, tripController.getToDo);
 
 tripRouter.get(

@@ -13,44 +13,44 @@ const travelBookingSchema = new mongoose.Schema(
       required: [true, "Travel type required"],
     },
 
-    members: [
-      {
-        userId: {
-          type: mongoose.SchemaTypes.ObjectId,
-          ref: "User",
-          required: false,
-        },
-        name: {
-          type: String,
-          required: [true, "Member name required"],
-        },
-        relationship: {
-          type: String,
-          required: false,
-        },
-        age: {
-          type: Number,
-          required: false,
-        },
-        email: {
-          type: String,
-          required: false,
-          validate: {
-            validator: (v) => validator.isEmail(v),
-            message: "Invalid email address",
-          },
-        },
-        phone: {
-          type: String,
-          required: false,
-          validate: {
-            validator: (v) =>
-              validator.isMobilePhone(v, "any", { strictMode: false }),
-            message: "Invalid phone number",
-          },
-        },
-      },
-    ],
+    // members: [
+    //   {
+    //     userId: {
+    //       type: mongoose.SchemaTypes.ObjectId,
+    //       ref: "User",
+    //       required: false,
+    //     },
+    //     name: {
+    //       type: String,
+    //       required: [true, "Member name required"],
+    //     },
+    //     relationship: {
+    //       type: String,
+    //       required: false,
+    //     },
+    //     age: {
+    //       type: Number,
+    //       required: false,
+    //     },
+    //     email: {
+    //       type: String,
+    //       required: false,
+    //       validate: {
+    //         validator: (v) => validator.isEmail(v),
+    //         message: "Invalid email address",
+    //       },
+    //     },
+    //     phone: {
+    //       type: String,
+    //       required: false,
+    //       validate: {
+    //         validator: (v) =>
+    //           validator.isMobilePhone(v, "any", { strictMode: false }),
+    //         message: "Invalid phone number",
+    //       },
+    //     },
+    //   },
+    // ],
 
     source: {
       type: String,
@@ -66,7 +66,7 @@ const travelBookingSchema = new mongoose.Schema(
       validate: {
         validator: (v) => {
           const today = new Date();
-          today.setHours(0, 0, 0, 0);
+
           return v >= today;
         },
         message: "Departure date must be today or later",
@@ -78,7 +78,7 @@ const travelBookingSchema = new mongoose.Schema(
       validate: {
         validator: (v) => {
           const today = new Date();
-          today.setHours(0, 0, 0, 0);
+
           return v >= today;
         },
         message: "Departure date must be today or later",

@@ -329,9 +329,7 @@ const tripController = {
         { new: true, runValidators: true }
       );
 
-      res
-        .status(200)
-        .json({ message: "Travel booking done successfully", newBooking });
+      res.status(200).json(newBooking);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -476,6 +474,29 @@ const tripController = {
       res.status(500).json({ message: err.message });
     }
   },
+
+  getAllTravelBooking: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const tripId = req.params.tripId;
+
+      const allTravelBookings = await TravelBooking.find({
+        userId,
+        tripId,
+      });
+
+      if (!allTravelBookings.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Travel booking information not found" });
+      }
+
+      res.status(200).json(allTravelBookings);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
   editTravelBookingById: async (req, res) => {
     try {
       const userId = req.userId;
@@ -642,9 +663,11 @@ const tripController = {
           .json({ message: "Request body might empty or not included" });
       }
 
+      const { toDoName, toDoStatus, toDoDescription } = req.body;
+
       const updatedToDo = await ToDos.findOneAndUpdate(
         { userId, _id: toDoId },
-        { ...req.body },
+        { toDoName, toDoDescription, toDoStatus },
         { runValidators: true }
       );
 
@@ -652,7 +675,7 @@ const tripController = {
         return res.status(400).json({ message: "ToDo not found" });
       }
 
-      res.status(200).json({ message: "ToDo  updated successfully" });
+      res.status(200).json(updatedToDo);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -671,15 +694,17 @@ const tripController = {
 
       const tripId = deletedToDo.tripId;
 
-      const trip = await Trip.findOne({ _id: tripId, userId });
+      // const trip = await Trip.findOne({ _id: tripId, userId });
 
-      if (!trip) {
-        return res.status(400).json({ message: "Trip not found" });
-      }
+      // if (!trip) {
+      //   return res.status(400).json({ message: "Trip not found" });
+      // }
 
-      trip.toDos.pull(toDoId);
+      // trip.toDos.pull(toDoId);
 
-      await trip.save();
+      // await trip.save();
+
+      await Trip.updateOne({ _id: tripId }, { $pull: { toDos: toDoId } });
 
       res.status(200).send();
     } catch (err) {
@@ -691,6 +716,8 @@ const tripController = {
     try {
       const userId = req.userId;
       const toDoId = req.params.toDoId;
+
+      console.log(userId, toDoId);
 
       const toDo = await ToDos.findOne({ userId, _id: toDoId });
 
