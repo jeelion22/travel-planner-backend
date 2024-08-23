@@ -15,6 +15,8 @@ const flightRouter = require("./routes/flightRoutes");
 
 const trainRouter = require("./routes/trainRoutes");
 
+const accommodationRouter = require("./routes/accommodationRoute");
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -42,7 +44,7 @@ app.head("/api", (req, res) => {
 
 app.use("/api/users", userRouter, tripRouter);
 
-app.use("/api/admins", flightRouter, trainRouter);
+app.use("/api/admins", flightRouter, trainRouter, accommodationRouter);
 
 module.exports = app;
 

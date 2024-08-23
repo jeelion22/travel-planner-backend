@@ -232,10 +232,6 @@ const flightController = {
     const userId = req.userId;
     const admin = req.userType;
 
-    // if (!req.body || Object.keys(req.body).length === 0) {
-    //   return res.status(400).json({ message: "Flight data empty" });
-    // }
-
     const user = await User.findOne({ _id: userId, userType: admin });
 
     if (!user) {
