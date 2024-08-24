@@ -369,6 +369,31 @@ const tripController = {
       res.status(500).json({ message: err.message });
     }
   },
+
+  suggestAccommodation: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const location = String(req.query.location || "").trim();
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(400).json({ message: "User not found" });
+      }
+
+      const accommodationsAvailable = await Accommodation.find({
+        "location.city": { $regex: location, $options: "i" },
+      }).select("-__v");
+
+      if (accommodationsAvailable.length === 0) {
+        return res.status(400).json({ message: "Accommodation not available" });
+      }
+      res.status(200).json(accommodationsAvailable);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
   getAccommodationById: async (req, res) => {
     try {
       const userId = req.userId;
