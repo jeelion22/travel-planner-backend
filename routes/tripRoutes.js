@@ -33,8 +33,16 @@ tripRouter.put(
 
 // search accommodations
 tripRouter.get(
-  "/trips/accommodations/search", auth.isAuth,
+  "/trips/accommodations/search",
+  auth.isAuth,
   tripController.suggestAccommodation
+);
+
+// get all accommodations
+tripRouter.get(
+  "/trips/accommodations/booked/:tripId",
+  auth.isAuth,
+  tripController.getAllBookedAccommodations
 );
 
 tripRouter.get(
@@ -48,7 +56,7 @@ tripRouter.put(
   tripController.editAccommmodationById
 );
 tripRouter.delete(
-  "/accommodations/:accId",
+  "/accommodations/booking/:accId",
   auth.isAuth,
   tripController.deleteAccommodationById
 );
