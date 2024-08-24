@@ -4,6 +4,7 @@ const Trip = require("../models/trip");
 const User = require("../models/user");
 const TravelBooking = require("../models/travelBooking");
 const Accommodation = require("../models/accommodation");
+const AccommodationBooking = require("../models/accommodationBooking");
 const ToDos = require("../models/toDos");
 const axios = require("axios");
 const Flight = require("../models/flights");
@@ -335,6 +336,7 @@ const tripController = {
     }
   },
 
+  // booking accommodations
   bookAccommodation: async (req, res) => {
     try {
       const userId = req.userId;
@@ -349,7 +351,7 @@ const tripController = {
       req.body["tripId"] = tripId;
       req.body["userId"] = userId;
 
-      const accommodation = new Accommodation({
+      const accommodation = new AccommodationBooking({
         ...req.body,
       });
 
@@ -370,6 +372,7 @@ const tripController = {
     }
   },
 
+  // suggested accommodations array
   suggestAccommodation: async (req, res) => {
     try {
       const userId = req.userId;
@@ -394,6 +397,35 @@ const tripController = {
     }
   },
 
+  // get all booked accommodation for the trip
+
+  getAllBookedAccommodations: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const tripId = req.params.tripId;
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(400).json({ message: "User not found" });
+      }
+
+      const allAccommodations = await AccommodationBooking.find({
+        userId,
+        tripId,
+      });
+
+      if (allAccommodations.length === 0) {
+        return res.status(400).json({ message: "Accommodation not available" });
+      }
+
+      res.status(200).json(allAccommodations);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  // get accommodation by Id
   getAccommodationById: async (req, res) => {
     try {
       const userId = req.userId;
@@ -415,6 +447,7 @@ const tripController = {
       res.status(500).json({ message: err.message });
     }
   },
+  // editAccommodation
   editAccommmodationById: async (req, res) => {
     try {
       const userId = req.userId;
@@ -444,12 +477,13 @@ const tripController = {
       });
     } catch (err) {}
   },
+  // delete accommodation
   deleteAccommodationById: async (req, res) => {
     try {
       const userId = req.userId;
       const accId = req.params.accId;
 
-      const deletedAccommodation = await Accommodation.findOneAndDelete({
+      const deletedAccommodation = await AccommodationBooking.findOneAndDelete({
         userId,
         _id: accId,
       });
