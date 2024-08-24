@@ -31,6 +31,12 @@ tripRouter.put(
   tripController.bookAccommodation
 );
 
+// search accommodations
+tripRouter.get(
+  "/trips/accommodations/search", auth.isAuth,
+  tripController.suggestAccommodation
+);
+
 tripRouter.get(
   "/accommodations/:accId",
   auth.isAuth,
