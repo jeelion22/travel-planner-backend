@@ -96,11 +96,13 @@ const userController = {
         return res.status(400).json({ message: "Invalid credentials" });
       }
 
+      // for simple use case, user id can be used
+
       if (!user.isEmailVerified) {
         await user.generateAndSendOtpEmail();
         return res
           .status(200)
-          .json({ message: "Email verification required", user: { _id } });
+          .json({ message: "Email verification required", userId: user._id });
       }
 
       const token = jwt.sign(

@@ -494,15 +494,10 @@ const tripController = {
 
       const tripId = deletedAccommodation.tripId;
 
-      const trip = await Trip.findOne({ userId, _id: tripId });
-
-      if (!trip) {
-        return res.status(400).json({ message: "Trip not found" });
-      }
-
-      trip.accommodations.pull(accId);
-
-      await trip.save();
+      await Trip.updateOne(
+        { _id: tripId, userId },
+        { $pull: { accommodations: accId } }
+      );
 
       res.status(200).send();
     } catch (err) {
@@ -604,15 +599,10 @@ const tripController = {
 
       const tripId = deletedTravelBooking.tripId;
 
-      const trip = await Trip.findOne({ userId, _id: tripId });
-
-      if (!trip) {
-        return res.status(400).json({ message: "Trip not found" });
-      }
-
-      trip.travelBookings.pull(travelId);
-
-      await trip.save();
+      await Trip.updateOne(
+        { _id: tripId, userId },
+        { $pull: { travelBookings: travelId } }
+      );
 
       res.status(200).send();
     } catch (err) {

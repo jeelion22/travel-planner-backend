@@ -10,18 +10,22 @@ const budgetSchema = new mongoose.Schema(
     transportationBudget: {
       type: Number,
       required: [true, "Transporation budget required"],
+      default: 0,
     },
     accommodationBudget: {
       type: Number,
       required: [true, "Accommodation budget required"],
+      default: 0,
     },
     foodBudget: {
       type: Number,
       required: [true, "Food budget required"],
+      default: 0,
     },
     otherBudget: {
       type: Number,
       required: [true, "Other budget required"],
+      default: 0,
     },
 
     transportation: {
