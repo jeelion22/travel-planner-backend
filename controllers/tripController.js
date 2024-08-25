@@ -144,6 +144,7 @@ const tripController = {
     }
   },
 
+  // delete trip
   deleteTrip: async (req, res) => {
     try {
       const userId = req.userId;
@@ -155,9 +156,13 @@ const tripController = {
         return res.status(400).json({ message: "Trip not found" });
       }
 
-      const user = await User.findById(userId);
-      user.trips.pull(tripId);
-      await user.save();
+      await TravelBooking.findOneAndDelete({ userId, tripId });
+
+      await AccommodationBooking.findOneAndDelete({ userId, tripId });
+
+      await ToDos.findOneAndDelete({ userId, tripId });
+
+      await User.updateOne({ _id: userId }, { $pull: { trips: tripId } });
 
       res.status(204).send();
     } catch (err) {
