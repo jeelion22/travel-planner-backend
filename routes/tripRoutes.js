@@ -7,14 +7,13 @@ const tripController = require("../controllers/tripController");
 const tripRouter = express.Router();
 
 tripRouter.post("/addTrip", auth.isAuth, tripController.addTrip);
+// search trips
+tripRouter.get("/trips/search", auth.isAuth, tripController.searchTrips);
 tripRouter.get("/trips/:tripId", auth.isAuth, tripController.getTripById);
 tripRouter.get("/allTrips", auth.isAuth, tripController.getAllTripsByUserId);
 
 // edit trip
 tripRouter.put("/trips/edit/:tripId", auth.isAuth, tripController.editTrip);
-
-// search trips
-tripRouter.get("/trips/search", auth.isAuth, tripController.searchTrips);
 
 // delete trip
 tripRouter.delete("/trips/:tripId", auth.isAuth, tripController.deleteTrip);
