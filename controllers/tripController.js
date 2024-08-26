@@ -127,7 +127,7 @@ const tripController = {
 
       res.status(200).json({ message: "Trip updated successfully!" });
     } catch (err) {
-      console.log(error)
+      console.log(error);
       res.status(500).json({ message: err.message });
     }
   },
@@ -157,6 +157,44 @@ const tripController = {
       res.status(500).json({ message: err.message });
     }
   },
+
+  searchTrips: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const trip = String(req.query.trip || "").trim();
+
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(400).json({ message: "User not found" });
+      }
+
+      const trips = await Trip.find({
+        userId,
+
+        $or: [
+          {
+            tripName: { $regex: trip, $options: "i" },
+          },
+          {
+            destination: {
+              $regex: trip,
+              $options: "i",
+            },
+          },
+        ],
+      });
+
+      if (trips.length === 0) {
+        return res.status(400).json({ mesage: "Trips not found" });
+      }
+
+      res.status(200).json(trips);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+
   updateBudget: async (req, res) => {
     try {
       const userId = req.userId;
