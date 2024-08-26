@@ -9,7 +9,12 @@ const tripRouter = express.Router();
 tripRouter.post("/addTrip", auth.isAuth, tripController.addTrip);
 tripRouter.get("/trips/:tripId", auth.isAuth, tripController.getTripById);
 tripRouter.get("/allTrips", auth.isAuth, tripController.getAllTripsByUserId);
+
+// edit trip
 tripRouter.put("/trips/edit/:tripId", auth.isAuth, tripController.editTrip);
+
+
+// delete trip
 tripRouter.delete("/trips/:tripId", auth.isAuth, tripController.deleteTrip);
 tripRouter.put(
   "/trips/updateBudget/:tripId",
