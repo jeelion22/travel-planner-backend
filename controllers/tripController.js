@@ -115,19 +115,6 @@ const tripController = {
       const userId = req.userId;
       const tripId = req.params.tripId;
 
-      const tripData = Object.keys(req.body);
-
-      const isIncludeAll = [
-        "tripName",
-        "destination",
-        "startDate",
-        "endDate",
-      ].every((trip) => tripData.includes(trip));
-
-      if (!isIncludeAll) {
-        return res.status(400).json({ message: "All fields required" });
-      }
-
       const trip = await Trip.findOneAndUpdate(
         { userId, _id: tripId },
         { ...req.body },
@@ -138,8 +125,9 @@ const tripController = {
         return res.status(400).json({ message: "Trip not found" });
       }
 
-      res.status(200).json(trip);
+      res.status(200).json({ message: "Trip updated successfully!" });
     } catch (err) {
+      console.log(error)
       res.status(500).json({ message: err.message });
     }
   },
