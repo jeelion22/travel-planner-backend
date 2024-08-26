@@ -19,13 +19,16 @@ const accommodationRouter = require("./routes/accommodationRoute");
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://travel-planner-india.netlify.app",
     credentials: true,
   })
 );
 
 app.use((req, res, next) => {
-  req.header("Access-Control-Allow-Origin", "http://localhost:5173");
+  req.header(
+    "Access-Control-Allow-Origin",
+    "https://travel-planner-india.netlify.app"
+  );
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
