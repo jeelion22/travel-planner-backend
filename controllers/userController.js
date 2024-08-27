@@ -101,7 +101,7 @@ const userController = {
       if (!user.isEmailVerified) {
         await user.generateAndSendOtpEmail();
         return res
-          .status(403)
+          .status(200)
           .json({ message: "Email verification required", userId: user._id });
       }
 
