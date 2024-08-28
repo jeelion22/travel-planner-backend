@@ -416,7 +416,10 @@ const tripController = {
       }
 
       const accommodationsAvailable = await Accommodation.find({
-        "location.city": { $regex: location, $options: "i" },
+        $or: [
+          { "location.city": { $regex: location, $options: "i" } },
+          { "location.address": { $regex: location, $options: "i" } },
+        ],
       }).select("-__v");
 
       if (accommodationsAvailable.length === 0) {
