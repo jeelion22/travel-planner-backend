@@ -133,7 +133,7 @@ const userController = {
       const userId = req.userId;
 
       const user = await User.findById(userId).select(
-        "-__v -passwordHash -hashedEmailVerificationToken -hashedEmailVerificationTokenExpiresAt"
+        "-__v -passwordHash -hashedEmailVerificationToken -hashedEmailVerificationTokenExpiresAt -hashedPasswordResetOtp hashedPasswordResetOtpExpiresAt"
       );
 
       res.status(200).json(user);
