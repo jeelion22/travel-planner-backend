@@ -48,7 +48,7 @@ The server is hosted on [Render](https://render.com/) and [click](https://travel
 
    ```bash
    https://github.com/jeelion22/travel-planner-backend.git
-   cd travel-planner-frontend
+   cd travel-planner-backend
    ```
 
 2. **Install dependencies:**
