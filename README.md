@@ -21,7 +21,7 @@ It includes endpoints for managing travel itineraries, accommodations, bookings,
 
 The API documentation is prepared using Postman.
 
-<!-- [Click here](https://documenter.getpostman.com/view/21877600/2sA3e1CW6i) for API documentation. -->
+[Click here](https://documenter.getpostman.com/view/21877600/2sAXjJ6D2v) for API documentation.
 
 ## Server Deployment
 
