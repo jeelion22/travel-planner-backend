@@ -41,7 +41,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.head("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.send("Welcome to the Travel Planner API Endpoints!");
 });
 
