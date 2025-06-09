@@ -20,21 +20,21 @@ const accommodationRouter = require("./routes/accommodationRoute");
 app.use(
   cors({
     origin: "https://travel-planner-india.netlify.app",
-    credentials: true,
+    // credentials: true,
   })
 );
 
-app.use((req, res, next) => {
-  req.header(
-    "Access-Control-Allow-Origin",
-    "https://travel-planner-india.netlify.app"
-  );
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
+// app.use((req, res, next) => {
+//   req.header(
+//     "Access-Control-Allow-Origin",
+//     "https://travel-planner-india.netlify.app"
+//   );
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   next();
+// });
 
 app.use(cookieParser());
 app.use(morgan("dev"));
@@ -42,7 +42,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/api", (req, res) => {
-  res.json({message: "Welcome to travel-planner-india app api enpoints!"});
+  res.json({ message: "Welcome to travel-planner-india app api enpoints!" });
 });
 
 app.use("/api/users", userRouter, tripRouter);

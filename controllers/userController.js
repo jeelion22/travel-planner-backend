@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 const sendOtpToEmail = require("../utils/email");
 const otpGenerator = require("otp-generator");
+const BlockedToken = require("../models/blockedToken");
 
 const userController = {
   register: async (req, res) => {
@@ -114,13 +115,13 @@ const userController = {
         { expiresIn: "24h" }
       );
 
-      res.cookie("token", token, {
-        path: "/",
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        expires: new Date(Date.now() + 24 * 3600 * 1000),
-      });
+      // res.cookie("token", token, {
+      //   path: "/",
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      //   expires: new Date(Date.now() + 24 * 3600 * 1000),
+      // });
 
       res.status(200).json({ message: "Logged successfully!", token });
     } catch (err) {
@@ -144,11 +145,19 @@ const userController = {
 
   logout: async (req, res) => {
     try {
-      res.clearCookie("token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-      });
+      const token = req.headers.authorization?.split(" ")[1];
+
+      const decoded = jwt.verify(token, JWT_SECRET);
+
+      const expiresAt = new Date(decoded.exp * 1000);
+
+      await BlockedToken.create({ token, expiresAt });
+
+      // res.clearCookie("token", {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      // });
       res.status(204).send();
     } catch (err) {
       res.status(500).json({ message: err.message });

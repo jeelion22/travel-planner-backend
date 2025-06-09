@@ -1,20 +1,35 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
+const BlockedToken = require("../models/blockedToken");
+
+const getToken = (req) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.split(" ")[1];
+  }
+
+  return null;
+};
 
 const auth = {
-  isAuth: (req, res, next) => {
-    const token = req.cookies.token;
+  isAuth: async (req, res, next) => {
+    // const token = req.cookies.token;
+
+    const token = getToken(req);
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized access" });
     }
 
+    const isBlocked = await BlockedToken.findOne({ token });
+
+    isBlocked && res.status(403).json({ message: "Token is revoked." });
+
     try {
       const decodedToken = jwt.verify(token, JWT_SECRET);
       req.userId = decodedToken.id;
-
-    
 
       next();
     } catch (err) {
@@ -26,12 +41,19 @@ const auth = {
     }
   },
 
-  isAuthAdmin: (req, res, next) => {
-    const token = req.cookies.token;
+  isAuthAdmin: async (req, res, next) => {
+    // const token = req.cookies.token;
+
+    const token = getToken(req);
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized access" });
     }
+
+    const isBlocked = await BlockedToken.findOne({ token });
+
+    isBlocked && res.status(403).json({ message: "Token is revoked." });
+
     try {
       const decodedToken = jwt.verify(token, JWT_SECRET);
 
