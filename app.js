@@ -19,7 +19,10 @@ const accommodationRouter = require("./routes/accommodationRoute");
 
 app.use(
   cors({
-    origin: "https://travel-planner-india.netlify.app",
+    origin: [
+      "https://travel-planner-india.netlify.app",
+      // "http://localhost:5173",
+    ],
     // credentials: true,
   })
 );
